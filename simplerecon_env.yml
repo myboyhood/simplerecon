@@ -1,6 +1,6 @@
 name: simplerecon
 channels:
-  - default
+  - default # origin is default, chatgpt say change to defaults
   - pytorch
   - conda-forge
 dependencies:
@@ -9,7 +9,7 @@ dependencies:
   - python=3.9.7
   - pytorch=1.10.0
   - torchvision=0.11.1
-  - cudatoolkit=11.3
+  - cudatoolkit=11.3 # origin is 11.3, wzy change to 11.6
   - pytorch-lightning=1.5.4 # training utils
   - pillow # image op
   - tensorboard # logging
@@ -23,10 +23,10 @@ dependencies:
     - trimesh # mesh loading/storage, and mesh generation
     - transforms3d # for NeuralRecon's arkit
     - einops # batching one liners
-    - moviepy # storing videos
+    - moviepy=1.0.3 # storing videos origin is not label version, but wzy change to label version 1.0.3
     - pyrender # rendering meshes
     - open3d==0.14.1 # mesh fusion
     - scipy # transformations and a few others
     - protobuf<4.21.0 # lighting/tensorboard fix
     - setuptools==59.5.0 # fix for tensorboard
-    - https://github.com/JamieWatson683/scikit-image/archive/single_mesh.zip # single mesh exporting for measure.marching_cubes
+    # - https://github.com/JamieWatson683/scikit-image/archive/single_mesh.zip # single mesh exporting for measure.marching_cubes

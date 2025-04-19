@@ -1,5 +1,5 @@
 !!python/object:options.Options
-dataset_path: /media/data/mosayed/datasets/vdr
+dataset_path: /home/zph/hard_disk/rosbag/MVS_work/simpleRecon/vdr
 tuple_info_file_location: data_splits/vdr/
 dataset_scan_split_file: data_splits/vdr/scans.txt
 dataset: vdr

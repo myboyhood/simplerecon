@@ -1,3 +1,22 @@
+# CIUS Note:
+## 1. 环境准备
+1.1 conda solve环境太慢了，于是采用了micromamba 来安装依赖
+1.2 需要将simplerecon_env.yml文件中scikit-image的github 依赖注释掉，因为安装不了。转而采用pip install scikit-image==0.24.0，另外moviepy=1.0.3需要指定版本。
+
+## 2. 运行代码
+2.1 进入环境`micromamba activate simplerecon`，注意这里不是conda环境。
+2.2 因为GPU显存不够，调整batch_size=1, 
+2.3 第一次运行中需要下载预训练文件，所以需要终端的命令走代理，这里使用`proxychains4 bash`打开一个新shell，然后再执行 `CUDA_VISIBLE_DEVICES=0 python test.py --name HERO_MODEL ........`
+2.4 结果可视化：运行`visualize_mesh_result_with_open3d.py`，使用open3d来打开`.ply`文件。
+
+## 3. 自己数据准备
+3.1 看到Issue中有用ORB-SLAM2作位姿得到数据的，但多数还是用[ios-logger](https://github.com/Varvrar/ios_logger),但这个项目需要Xcode编译安装到IOS设备中，有点麻烦
+3.2看到下载的vdr数据集中，有图像，也有一个capture.json文件（包含了图像内参和位姿）。有一个`vdr_dataset.py`程序可以解析数据，准备按照解析的方法，写一个json文件，并配合图像数据，直接运行simplerecon
+
+
+
+
+
 # SimpleRecon: 3D Reconstruction Without 3D Convolutions
 
 This is the reference PyTorch implementation for training and testing MVS depth estimation models using the method described in
@@ -33,28 +52,37 @@ Precomputed scans for online default frames are here: https://drive.google.com/d
 
 ## Table of Contents
 
-  * [🗺️ Overview](#%EF%B8%8F-overview)
-  * [⚙️ Setup](#%EF%B8%8F-setup)
-  * [📦 Models](#-models)
-  * [🚀 Speed](#-speed)
-  * [📝 TODOs:](#-todos)
-  * [🏃 Running out of the box!](#-running-out-of-the-box)
-  * [💾 ScanNetv2 Dataset](#-scannetv2-dataset)
-  * [🖼️🖼️🖼️ Frame Tuples](#%EF%B8%8F%EF%B8%8F%EF%B8%8F-frame-tuples)
-  * [📊 Testing and Evaluation](#-testing-and-evaluation)
-  * [👉☁️ Point Cloud Fusion](#%EF%B8%8F-point-cloud-fusion)
-  * [📊 Mesh Metrics](#-mesh-metrics)
-  * [⏳ Training](#-training)
-    + [🎛️ Finetuning a pretrained model](#%EF%B8%8F-finetuning-a-pretrained-model)
-  * [🔧 Other training and testing options](#-other-training-and-testing-options)
-  * [✨ Visualization](#-visualization)
-  * [📝🧮👩‍💻 Notation for Transformation Matrices](#-notation-for-transformation-matrices)
-  * [🗺️ World Coordinate System](#%EF%B8%8F-world-coordinate-system)
-  * [🐜🔧 Bug Fixes](#-bug-fixes)
-  * [🗺️💾 COLMAP Dataset](#%EF%B8%8F-colmap-dataset)
-  * [🙏 Acknowledgements](#-acknowledgements)
-  * [📜 BibTeX](#-bibtex)
-  * [👩‍⚖️ License](#%EF%B8%8F-license)
+- [CIUS Note:](#cius-note)
+  - [1. 环境准备](#1-环境准备)
+  - [2. 运行代码](#2-运行代码)
+  - [3. 自己数据准备](#3-自己数据准备)
+- [SimpleRecon: 3D Reconstruction Without 3D Convolutions](#simplerecon-3d-reconstruction-without-3d-convolutions)
+  - [🆕 Updates](#-updates)
+  - [Table of Contents](#table-of-contents)
+  - [🗺️ Overview](#️-overview)
+  - [⚙️ Setup](#️-setup)
+  - [📦 Models](#-models)
+  - [🚀 Speed](#-speed)
+  - [📝 TODOs:](#-todos)
+  - [🏃 Running out of the box!](#-running-out-of-the-box)
+  - [💾 ScanNetv2 Dataset](#-scannetv2-dataset)
+  - [🖼️🖼️🖼️ Frame Tuples](#️️️-frame-tuples)
+  - [📊 Testing and Evaluation](#-testing-and-evaluation)
+  - [👉☁️ Point Cloud Fusion](#️-point-cloud-fusion)
+  - [📊 Mesh Metrics](#-mesh-metrics)
+  - [⏳ Training](#-training)
+    - [🎛️ Finetuning a pretrained model](#️-finetuning-a-pretrained-model)
+  - [🔧 Other training and testing options](#-other-training-and-testing-options)
+  - [✨ Visualization](#-visualization)
+  - [📝🧮👩‍💻 Notation for Transformation Matrices](#-notation-for-transformation-matrices)
+  - [🗺️ World Coordinate System](#️-world-coordinate-system)
+  - [🐜🔧 Bug Fixes](#-bug-fixes)
+    - [**Update 31/12/2022:**](#update-31122022)
+    - [**Tiny bug with frame count:**](#tiny-bug-with-frame-count)
+  - [🗺️💾 COLMAP Dataset](#️-colmap-dataset)
+  - [🙏 Acknowledgements](#-acknowledgements)
+  - [📜 BibTeX](#-bibtex)
+  - [👩‍⚖️ License](#️-license)
 
 ## 🗺️ Overview
 

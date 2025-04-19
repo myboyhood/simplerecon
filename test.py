@@ -190,15 +190,16 @@ def main(opts):
     # used when training, saved internally as part of hparams in the checkpoint.
     # You can change this at inference by passing in 'opts=opts,' but there 
     # be dragons if you're not careful.
+    print(f"load_weights_from_checkpoint:  >>>>>>> {opts.load_weights_from_checkpoint}")
     model = DepthModel.load_from_checkpoint(
                                 opts.load_weights_from_checkpoint,
                                 args=None)
     if (opts.fast_cost_volume and  
             isinstance(model.cost_volume, cost_volume.FeatureVolumeManager)):
         model.cost_volume = model.cost_volume.to_fast()
-
+    print(f">>>>> Model: {model.__class__.__name__}")    
     model = model.cuda().eval()
-
+    print(f"Model loaded from checkpoint: {opts.load_weights_from_checkpoint}")
     # setting up overall result averagers
     all_frame_metrics = None
     all_scene_metrics = None
