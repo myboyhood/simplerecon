@@ -10,6 +10,7 @@ from torchvision import transforms
 from utils.generic_utils import (readlines, imagenet_normalize, read_image_file)
 from utils.geometry_utils import pose_distance
 
+
 logger = logging.getLogger(__name__)
 
 class GenericMVSDataset(Dataset):
@@ -413,6 +414,7 @@ class GenericMVSDataset(Dataset):
         """
 
         color_filepath = self.get_color_filepath(scan_id, frame_id)
+        # print(f"color_filepath: {color_filepath}")
         image = read_image_file(
                             color_filepath, 
                             height=self.image_height, width=self.image_width,
@@ -563,7 +565,8 @@ class GenericMVSDataset(Dataset):
                 "high_res_color_b3hw": high_res_color,
             })
 
-        if self.include_full_res_depth:
+        # if self.include_full_res_depth: # wzy add condition load_depth
+        if load_depth and self.include_full_res_depth:
             # get high res depth
             full_res_depth, full_res_mask, full_res_mask_b = \
                     self.load_full_res_depth_and_mask(scan_id, frame_id)
@@ -603,7 +606,7 @@ class GenericMVSDataset(Dataset):
         """ Loads data for all frames for the MVS tuple at index idx. 
 
             Args:
-                idx: the index for the elmeent in the dataset.
+                idx: the index for the element in the dataset.
             
             Returns:
                 cur_data: frame data for the reference frame
@@ -631,7 +634,7 @@ class GenericMVSDataset(Dataset):
         # assemble the dataset element by getting all data for each frame
         inputs = []
         for _, frame_id in enumerate(frame_ids):
-            inputs += [self.get_frame(scan_id, frame_id, load_depth=True, flip=flip)]
+            inputs += [self.get_frame(scan_id, frame_id, load_depth=False, flip=flip)] # wzy self data change depth to false
         
         # cur_data is the reference frame
         cur_data, *src_data_list = inputs

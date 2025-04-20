@@ -11,11 +11,10 @@ from torchvision import transforms
 from utils.geometry_utils import rotx
 from utils.generic_utils import read_image_file
 import PIL.Image as pil
-from scipy.spatial.transform import Rotation as R
 
 logger = logging.getLogger(__name__)
 
-class VDRDataset(GenericMVSDataset):
+class CustomDataset(GenericMVSDataset):
     """ 
     Reads a VDR scan folder.
     
@@ -183,14 +182,41 @@ class VDRDataset(GenericMVSDataset):
 
         self.load_capture_metadata(scan_id)
         frame_metadata = self.capture_metadata[scan_id][int(frame_id)]
-        
+        '''
+        # print(f"frame_metadata: {frame_metadata['pose4x4']}")
+        # ARkit x right, y up, z back
+        enu_to_arkit = np.array([
+            [0, -1, 0],
+            [0, 0, 1],
+            [-1, 0, 0]
+        ])
 
-        world_T_cam = torch.tensor(frame_metadata['pose4x4'], 
-                                            dtype=torch.float32).view(4, 4).T
+        raw_T_T = np.array(frame_metadata['pose4x4'], dtype=np.float32).reshape(4, 4)
+        # print(f"raw_T_T: {raw_T_T}")
+        raw_rot_mat = raw_T_T[:3,:3]
+        raw_trans = raw_T_T[:3,3]
+        # 将旋转矩阵转换到 ARKit 坐标系
+        rot_mat_arkit = enu_to_arkit @ raw_rot_mat
+        # 将位移向量转换到 ARKit 坐标系
+        trans_arkit = enu_to_arkit @ raw_trans
+        # print(f"rot_mat_arkit: {rot_mat_arkit}")
+        print(f"frame_id {frame_id}, trans_arkit: {trans_arkit}")
+
+        raw_T_T[:3, :3] = rot_mat_arkit
+        raw_T_T[:3, 3] = trans_arkit
+        world_T_cam = torch.tensor(raw_T_T, dtype=torch.float32)
+        '''
+        world_T_cam = torch.tensor(frame_metadata['pose4x4'], dtype=torch.float32).view(4, 4).T
+        # world_T_cam = torch.tensor(raw_T.T, dtype=torch.float32)
+
+
+        # print(f"world_T_cam: {world_T_cam.numpy()}")
         gl_to_cv = torch.FloatTensor([[1, -1, -1, 1], [-1, 1, 1, -1], 
                                     [-1, 1, 1, -1], [1, 1, 1, 1]])
         world_T_cam *= gl_to_cv
         world_T_cam = world_T_cam.numpy()
+        # print(f"after gl_to_cv world_T_cam: {world_T_cam}\n\n\n")
+
         rot_mat = world_T_cam[:3,:3]
         trans = world_T_cam[:3,3]
 
@@ -200,12 +226,7 @@ class VDRDataset(GenericMVSDataset):
         world_T_cam[:3, :3] = rot_mat
         world_T_cam[:3, 3] = trans
 
-        # 创建 Rotation 对象
-        r = R.from_matrix(rot_mat)
-        # 获取四元数 (x, y, z, w)
-        quat = r.as_quat()
-        print(f"frame_id {frame_id}, 四元数 (x, y, z, w): {quat}")
-        print(f"frame_id {frame_id}, transform: {trans}")
+        # print(f"final trans: {trans}\n\n\n");
 
         world_T_cam = world_T_cam
         cam_T_world = np.linalg.inv(world_T_cam)
@@ -257,7 +278,7 @@ class VDRDataset(GenericMVSDataset):
         #     output_dict[f"K_full_depth_b44"] = full_K.clone()
         #     output_dict[f"invK_full_depth_b44"] = torch.linalg.inv(full_K)
 
-        # wzy change directly use the full res depth
+        # wzy change directly set full_K
         full_K = K.clone()
 
         full_K[0] *= (self.native_depth_width/image_width)
@@ -307,6 +328,7 @@ class VDRDataset(GenericMVSDataset):
             capture_metadata = json.load(f)
 
         self.capture_metadata[scan_id] = capture_metadata["frames"]
+        print(f">>>>>>> frames num: {len(self.capture_metadata[scan_id])}")
 
     def get_cached_depth_filepath(self, scan_id, frame_id):
         """ returns the filepath for a frame's depth file at the dataset's 
@@ -545,7 +567,7 @@ class VDRDataset(GenericMVSDataset):
                                 self.get_sub_folder_dir(self.split), scan_id)
 
         cached_resized_path = os.path.join(scene_path, 
-                                    f"frame.{self.image_width}_{frame_id}.jpg")
+                                    f"frame.{self.image_width}_{frame_id}.png")
 
         # check if we have cached resized images on disk first
         if os.path.exists(cached_resized_path):
@@ -553,7 +575,7 @@ class VDRDataset(GenericMVSDataset):
         
         # instead return the default image
         return os.path.join(scene_path, 
-                        f"frame_{frame_id}.jpg")
+                        f"frame_{frame_id}.png")
 
     def get_high_res_color_filepath(self, scan_id, frame_id):
         """ returns the filepath for a frame's higher res color file at the 
@@ -574,7 +596,7 @@ class VDRDataset(GenericMVSDataset):
                                 self.get_sub_folder_dir(self.split), scan_id)
 
         cached_resized_path = os.path.join(scene_path, 
-                        f"frame.{self.high_res_image_height}_{frame_id}.jpg")
+                        f"frame.{self.high_res_image_height}_{frame_id}.png")
 
         # check if we have cached resized images on disk first
         if os.path.exists(cached_resized_path):
@@ -582,4 +604,4 @@ class VDRDataset(GenericMVSDataset):
         
         # instead return the default image
         return os.path.join(scene_path, 
-                        f"frame_{frame_id}.jpg")
+                        f"frame_{frame_id}.png")

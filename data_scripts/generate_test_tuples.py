@@ -459,6 +459,7 @@ def crawl_subprocess_long(opts_temp_filepath, scan, count, progress):
     poses = []
     for frame_ind in range(len(valid_frames)):
         frame_id = frame_ind_to_frame_id[frame_ind]
+        print(f">>>> we acquire {frame_id}")
         world_T_cam_44, _ = ds.load_pose(scan.rstrip("\n"), frame_id)
         poses.append(world_T_cam_44)
 

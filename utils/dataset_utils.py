@@ -3,6 +3,7 @@ from datasets.arkit_dataset import ARKitDataset
 from datasets.scannet_dataset import ScannetDataset
 from datasets.seven_scenes_dataset import SevenScenesDataset
 from datasets.vdr_dataset import VDRDataset
+from datasets.custom_dataset import CustomDataset
 from datasets.scanniverse_dataset import ScanniverseDataset
 
 def get_dataset(dataset_name, 
@@ -82,6 +83,26 @@ def get_dataset(dataset_name,
         if verbose:
             print(f"".center(80, "#"))
             print(f" VDR Dataset, number of scans: {len(scans)} ".center(80, "#"))
+            print(f"".center(80, "#"))
+            print("")
+
+    elif dataset_name == "custom":
+
+        with open(split_filepath) as file:
+            scans = file.readlines()
+            scans = [scan.strip() for scan in scans]
+
+        if single_debug_scan_id is not None:
+            scans = [single_debug_scan_id]
+
+        if single_debug_scan_id is not None:
+            scans = [single_debug_scan_id]
+
+        dataset_class = CustomDataset
+
+        if verbose:
+            print(f"".center(80, "#"))
+            print(f" Custom Dataset, number of scans: {len(scans)} ".center(80, "#"))
             print(f"".center(80, "#"))
             print("")
 
