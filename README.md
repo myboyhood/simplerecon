@@ -9,13 +9,50 @@
 2.3 第一次运行中需要下载预训练文件，所以需要终端的命令走代理，这里使用`proxychains4 bash`打开一个新shell，然后再执行 `CUDA_VISIBLE_DEVICES=0 python test.py --name HERO_MODEL ........`
 2.4 结果可视化：运行`visualize_mesh_result_with_open3d.py`，使用open3d来打开`.ply`文件。
 
-## 3. 自己数据准备
+## 3. 自己数据准备初始思路
 3.1 看到Issue中有用ORB-SLAM2作位姿得到数据的，但多数还是用[ios-logger](https://github.com/Varvrar/ios_logger),但这个项目需要Xcode编译安装到IOS设备中，有点麻烦
 3.2看到下载的vdr数据集中，有图像，也有一个capture.json文件（包含了图像内参和位姿）。有一个`vdr_dataset.py`程序可以解析数据，准备按照解析的方法，写一个json文件，并配合图像数据，直接运行simplerecon
 
+## 3.自己数据准备成熟方法
+3.1 从rosbag中解析一个时间段内的图像和位姿出来
+  - 解析图像采用 `python rosbag2image_single.py -i /home/zph/hard_disk/rosbag/two_uavs_fly_outdoor/GazeboSim/city-rtx/v1-uav01-color-depth-pose_2025-02-15-10-20-28.bag -o /home/zph/hard_disk/rosbag/two_uavs_fly_outdoor/GazeboSim/city-rtx/depthAlign -t1_name /iris_1/camera/color/image_raw/compressed -t_start 256 -t_end 258 -step 1`
+  - 如果是两个宽基线视角的图像，参照3.9步骤
+  - 以最近邻图像时间戳为基准，解析位姿采用 `python parse_pose_from_rosbag.py`
+3.2 由位姿数据制作json文件,注意修改内参矩阵，注意这里将ENU坐标系转为了ARKit坐标系
+  - `python generate_json.py`
+3.3 重命名图像名字
+  - `python rename_image_dataset.py`
+3.4 放入数据集位置并修改名字，修改`./data_splits/custom/scans.txt`中的名字，这个名字是`configs/data/custom_city_sim_A.yaml`中`dataset_path: /home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom`子文件夹的名字
+3.6 生成frame tuple`python ./data_scripts/generate_test_tuples.py --data_config configs/data/custom_city_sim_A.yaml --num_workers 8`
+3.7 注意检查主程序`test_only_predict.py`中图像大小是480*640，还是192*254，因为主程序完全禁用了加载真值深度，所以不会输出精度评估，只能产生融合后的mesh结果。
+3.8 运行重建程序
+```shell
+CUDA_VISIBLE_DEVICES=0 python test_only_predict.py --name HERO_MODEL \
+            --output_base_path OUTPUT_PATH \
+            --config_file configs/models/hero_model.yaml \
+            --load_weights_from_checkpoint weights/hero_model.ckpt \
+            --data_config configs/data/custom_city_sim_A.yaml  \
+            --num_workers 8 \
+            --batch_size 1 \
+            --fast_cost_volume \
+            --run_fusion \
+            --depth_fuser open3d \
+            --fuse_color;
+```
 
+3.9 对于两个宽基线AB两个视角的情况。在3.1位姿解析后，需要用`rename_image_dataset_add_small_time.py`给B视角加一些时间戳偏移，然后以最近邻图像时间戳为基准，解析位姿`python parse_pose_from_rosbag.py`。
+然后执行AB两个位姿txt文件的合并`merge_two_pose_file.py`。后续接着3.2继续执行即可。
+但是生成frame tuple,要注意是`custom_city_sim_AB.yaml`，`python ./data_scripts/generate_test_tuples.py --data_config configs/data/custom_city_sim_AB.yaml --num_workers 8`
+而且在生成之后要始终保持A视角作为source帧，不然AB轮流当source帧，会让mesh的结果很差。所以要执行`keep_single_source_view.py`
+运行`CUDA_VISIBLE_DEVICES=0 python test_only_predict.py`也记得修改`--data_config configs/data/custom_city_sim_AB.yaml`
 
+3.10 对远距离大场景进行MVS时候，需要在`options.py`中修改深度限制`max_matching_depth: float = 50.0 # origin is 5.0, wzy change to 50` `fusion_max_depth: float = 50.0 # origin is 3.0, wzy change to 50， depth to limit depth maps to when fusing.`
 
+## 4. 可视化结果
+`python visualize_mesh_result_with_open3d.py`
+
+## 5. 实验结果
+用两帧图像是不行的，比如A一帧，B一帧。因为torch网络乘法会出错，估计必须是得8帧 eight_view
 
 # SimpleRecon: 3D Reconstruction Without 3D Convolutions
 

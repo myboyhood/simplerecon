@@ -7,13 +7,13 @@ from glob import glob
 import numpy as np
 
 # ===== 参数设置 =====
-base_path = "/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/city_sim_raw/"
-pose_txt = base_path + "time_camA_pose.txt"
-image_folder = base_path + "image_raw"
-output_image_folder = base_path + "renamed_image"
+base_path = "/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/Evalley_raw_AB/"
+pose_txt = base_path + "merged_AB_pose.txt"
+image_folder = base_path + "_kun_01_merged_images"
+output_image_folder = base_path + "_kun_01_merged_images_renamed_image"
 output_json_path = base_path + "capture.json"
-intrinsics = [320.0, 320.0, 320.0, 240.0, 0.0]  # fx, fy, cx, cy, k1（畸变），仿真 Iris相机
-# intrinsics = [383.949, 383.567, 316.075, 245.676, 0.0]  # fx, fy, cx, cy, k1（畸变），kun1 D455相机
+# intrinsics = [320.0, 320.0, 320.0, 240.0, 0.0]  # fx, fy, cx, cy, k1（畸变），仿真 Iris相机
+intrinsics = [383.949, 383.567, 316.075, 245.676, 0.0]  # fx, fy, cx, cy, k1（畸变），kun1 D455相机
 resolution = [640, 480]
 
 # ARkit x right, y up, z back

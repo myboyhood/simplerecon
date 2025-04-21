@@ -1,0 +1,2 @@
+city_sim_AB 1 0 0 0 0 0 0 0
+city_sim_AB 3 2 0 1 0 2 2 1

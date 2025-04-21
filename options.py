@@ -131,7 +131,7 @@ class Options():
     matching_num_depth_bins: int = 64
     # min and max depth planes in the cost volume
     min_matching_depth: float = 0.25
-    max_matching_depth: float = 5.0
+    max_matching_depth: float = 50.0 # origin is 5.0, wzy change to 50
 
     # type of cost volume encoder.
     cv_encoder_type: str = "multi_scale_encoder"
@@ -150,7 +150,7 @@ class Options():
     # fuse color in the tsdf? can only be used with open3d
     fuse_color: bool = False
     # depth to limit depth maps to when fusing.
-    fusion_max_depth: float = 3.0
+    fusion_max_depth: float = 50.0 # origin is 3.0, wzy change to 50
     # tsdf resolution for fusion
     fusion_resolution: float = 0.04
     # type of depth fuser to use. 'ours' allows batching and is used in the 
