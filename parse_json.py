@@ -2,8 +2,8 @@ import json
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-json_path = '/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/vdr/scans/living_room/capture.json'
-output_txt = '/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/vdr/scans/living_room/poses_from_json.txt'
+json_path = '/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/city_sim_raw/capture.json'
+output_txt = '/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/city_sim_raw/poses_from_json.txt'
 
 with open(json_path, 'r') as f:
     data = json.load(f)

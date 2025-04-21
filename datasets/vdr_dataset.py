@@ -32,7 +32,7 @@ class VDRDataset(GenericMVSDataset):
             dataset_path,
             split,
             mv_tuple_file_suffix,
-            include_full_res_depth=False,
+            include_full_res_depth=True,
             limit_to_scan_id=None,
             num_images_in_tuple=None,
             color_transform=transforms.ColorJitter(0.2, 0.2, 0.2, 0.2),
@@ -204,8 +204,8 @@ class VDRDataset(GenericMVSDataset):
         r = R.from_matrix(rot_mat)
         # 获取四元数 (x, y, z, w)
         quat = r.as_quat()
-        print(f"frame_id {frame_id}, 四元数 (x, y, z, w): {quat}")
-        print(f"frame_id {frame_id}, transform: {trans}")
+        # print(f"frame_id {frame_id}, 四元数 (x, y, z, w): {quat}")
+        # print(f"frame_id {frame_id}, transform: {trans}")
 
         world_T_cam = world_T_cam
         cam_T_world = np.linalg.inv(world_T_cam)
@@ -248,6 +248,8 @@ class VDRDataset(GenericMVSDataset):
         K[1, 2] = float(cy)
 
         # optionally include the intrinsics matrix for the full res depth map.
+        # self.include_full_depth_K = True
+        # print(f"self.include_full_depth_K = {self.include_full_depth_K}")
         # if self.include_full_depth_K:
         #     full_K = K.clone()
         #
@@ -269,6 +271,7 @@ class VDRDataset(GenericMVSDataset):
         # scale intrinsics to the dataset's configured depth resolution.
         K[0] *= (self.depth_width/image_width) 
         K[1] *= (self.depth_height/image_height)
+        # print(f"self.depth_width = {self.depth_width}, image_width = {image_width}")
 
         # Get the intrinsics of all the scales
         for i in range(5):

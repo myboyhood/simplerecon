@@ -1,9 +1,0 @@
-!!python/object:options.Options
-dataset_path: /home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom
-tuple_info_file_location: data_splits/custom/
-dataset_scan_split_file: data_splits/custom/scans.txt
-dataset: custom
-mv_tuple_file_suffix: _eight_view_deepvmvs_dense.txt
-num_images_in_tuple: 8
-frame_tuple_type: dense
-split: test

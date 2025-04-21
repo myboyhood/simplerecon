@@ -7,13 +7,13 @@ from glob import glob
 import numpy as np
 
 # ===== 参数设置 =====
-base_path = "/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/indoor_B202_raw/"
+base_path = "/home/zph/hard_disk/rosbag/MVS_work/simpleRecon/custom-raw-data/city_sim_raw/"
 pose_txt = base_path + "time_camA_pose.txt"
 image_folder = base_path + "image_raw"
 output_image_folder = base_path + "renamed_image"
 output_json_path = base_path + "capture.json"
-# intrinsics = [320.0, 320.0, 320.0, 240.0, 0.0]  # fx, fy, cx, cy, k1（畸变），仿真 Iris相机
-intrinsics = [383.949, 383.567, 316.075, 245.676, 0.0]  # fx, fy, cx, cy, k1（畸变），kun1 D455相机
+intrinsics = [320.0, 320.0, 320.0, 240.0, 0.0]  # fx, fy, cx, cy, k1（畸变），仿真 Iris相机
+# intrinsics = [383.949, 383.567, 316.075, 245.676, 0.0]  # fx, fy, cx, cy, k1（畸变），kun1 D455相机
 resolution = [640, 480]
 
 # ARkit x right, y up, z back
@@ -91,8 +91,8 @@ def generate_capture_json(matched_entries, intrinsics, resolution):
     for seq, (ts, t, q, img_path) in enumerate(matched_entries):
         pose_mat = pose_to_matrix(t, q)
         #转乘ARKit的形式再存储写入,而且再转置一下
-        rot_arkit = enu_to_arkit.T @ pose_mat[:3, :3]
-        trans_arkit = enu_to_arkit.T @ pose_mat[:3, 3]
+        rot_arkit = enu_to_arkit @ pose_mat[:3, :3] @ enu_to_arkit.T
+        trans_arkit = enu_to_arkit @ pose_mat[:3, 3]
         arkit_mat = np.eye(4)
         arkit_mat[:3, :3] = rot_arkit
         arkit_mat[:3, 3] = trans_arkit

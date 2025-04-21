@@ -282,11 +282,13 @@ def main(opts):
                 torch.cuda.synchronize()
 
                 elapsed_model_time = start_time.elapsed_time(end_time)
+                # print(f"depth_gt.shape[-2] height = 192, depth_gt.shape[-1] width = 256")
 
                 upsampled_depth_pred_b1hw = F.interpolate(
                                 outputs["depth_pred_s0_b1hw"],
                                 # size=(depth_gt.shape[-2], depth_gt.shape[-1]),
                                 size=(480, 640),
+                                # size=(192, 256),  # vdr_dataset
                                 mode="nearest",
                             )
 
@@ -340,6 +342,7 @@ def main(opts):
                                 overall_mask_b1hw, 
                                 # size=(depth_gt.shape[-2], depth_gt.shape[-1]),
                                 size=(480, 640),
+                                # size=(192, 256),  # vdr_dataset
                                 mode="nearest"
                         ).bool()
 
@@ -357,7 +360,8 @@ def main(opts):
                         upsampled_depth_pred_b1hw = F.interpolate(
                                 upsampled_depth_pred_b1hw, 
                                 # size=(depth_gt.shape[-2], depth_gt.shape[-1]),
-                                size=(480, 640),
+                                size=(480, 640), # custom dataset
+                                # size=(192, 256),  # vdr_dataset
                                 mode="nearest",
                             )
 
@@ -369,6 +373,7 @@ def main(opts):
                                 overall_mask_b1hw, 
                                 # size=(depth_gt.shape[-2], depth_gt.shape[-1]),
                                 size=(480, 640),
+                                # size=(192, 256),  # vdr_dataset
                                 mode="nearest"
                             ).bool()
 

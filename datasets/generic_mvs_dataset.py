@@ -566,7 +566,10 @@ class GenericMVSDataset(Dataset):
             })
 
         # if self.include_full_res_depth: # wzy add condition load_depth
+        # self.include_full_res_depth = True
+        # print(f"load_depth = {load_depth}, self.include_full_res_depth = {self.include_full_res_depth}")
         if load_depth and self.include_full_res_depth:
+
             # get high res depth
             full_res_depth, full_res_mask, full_res_mask_b = \
                     self.load_full_res_depth_and_mask(scan_id, frame_id)
