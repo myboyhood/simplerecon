@@ -49,10 +49,11 @@ CUDA_VISIBLE_DEVICES=0 python test_only_predict.py --name HERO_MODEL \
 3.10 对远距离大场景进行MVS时候，需要在`options.py`中修改深度限制`max_matching_depth: float = 50.0 # origin is 5.0, wzy change to 50` `fusion_max_depth: float = 50.0 # origin is 3.0, wzy change to 50， depth to limit depth maps to when fusing.`
 
 ## 4. 可视化结果
-`python visualize_mesh_result_with_open3d.py`
+4.1 `python visualize_mesh_result_with_open3d.py`
+4.2 ply转换dae,`assimp export paris_AB.ply  paris_AB.dae`
 
 ## 5. 实验结果
-用两帧图像是不行的，比如A一帧，B一帧。因为torch网络乘法会出错，估计必须是得8帧 eight_view
+A B视角两帧图像是可以生成mesh的，只不过data_split还是8帧，1 0 0 0 0 0 0，这样的形式。
 
 # SimpleRecon: 3D Reconstruction Without 3D Convolutions
 
@@ -92,7 +93,10 @@ Precomputed scans for online default frames are here: https://drive.google.com/d
 - [CIUS Note:](#cius-note)
   - [1. 环境准备](#1-环境准备)
   - [2. 运行代码](#2-运行代码)
-  - [3. 自己数据准备](#3-自己数据准备)
+  - [3. 自己数据准备初始思路](#3-自己数据准备初始思路)
+  - [3.自己数据准备成熟方法](#3自己数据准备成熟方法)
+  - [4. 可视化结果](#4-可视化结果)
+  - [5. 实验结果](#5-实验结果)
 - [SimpleRecon: 3D Reconstruction Without 3D Convolutions](#simplerecon-3d-reconstruction-without-3d-convolutions)
   - [🆕 Updates](#-updates)
   - [Table of Contents](#table-of-contents)
