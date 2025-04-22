@@ -90,8 +90,8 @@ class Open3DFuser(DepthFuser):
     def __init__(
             self, 
             gt_path="", 
-            fusion_resolution=0.04, 
-            max_fusion_depth=3, 
+            fusion_resolution=0.1, # origin is 0.04, wzy change to 0.1
+            max_fusion_depth=50, # origin is 3, wzy change to 50
             fuse_color=False, 
             use_upsample_depth=False,
         ):
